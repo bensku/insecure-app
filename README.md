@@ -18,15 +18,24 @@ downloads available for most operating system. While OpenJ9 and Java 12+
 should work, it is probably best that you pick OpenJDK 11.
 
 ### Enable Java 11
-You should configure your OS to use Java 11. If that is not possible,
-you can also set it as environmental variable manually before running.
+If possible, configure your OS to use Java 11. Alternatively,
+read below for instructions about using environmental variables to set Java
+version.
 
-On Ubuntu 18.04, something like this should work:
+#### Using environment variables
+You can set Java installation directory before running the application
+by changing environment variables. On Bash and similar shells, use
+```
+JAVA_HOME=<Java install dir>
+```
+
+For example, on Ubuntu 18.04 something like this should work:
 ```
 JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
 ```
-For AdoptOpenJDK users, point <code>JAVA_HOME</code> to where you installed
-the JDK. This should work on Windows if you're using (Git) Bash, too.
+
+On most Linux distros and macOS, a shell similar to Bash is available.
+On Windows, you can install Git with Bash and use it.
 
 ### Running
 Use Gradle wrapper to fetch Gradle, required libraries and run the application:
@@ -38,4 +47,16 @@ instead. DO NOT use system-provided Gradle; it is probably too old.
 
 The application will be available at [localhost:8080](http://localhost:8080).
 
+### Troubleshooting
+The application has been tested on Linux only, but it does not use any
+platform-specific features. Provided that you install Java correctly
+(e.g. by following the instructions above), everything should work.
+
 ## Vulnerabilities demonstrated
+
+### Security Misconfiguration
+**Problem:** The application has configured use of plain-text password encoder.
+Should attackers get access to it (which is not going to be difficult),
+plaintext passwords of users will be exposed.
+
+**Solution:** Switch to a secure password encoder, e.g. Bcrypt.
