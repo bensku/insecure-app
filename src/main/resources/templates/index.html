@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Welcome!</title>
+    </head>
+
+    <body>
+        <form th:action="@{/}" method="GET">
+        	A temporary note:
+        	<p th:utext="${note}">Note</p>
+        	
+        	Replace it with something new:
+            <textarea name="newNote"></textarea>
+            <input type="submit" value="Change note"/>
+        </form>
+    </body>
+</html>

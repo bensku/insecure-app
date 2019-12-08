@@ -35,8 +35,8 @@ public class UserController {
     @PostMapping("/register")
     public String register(Model model, @RequestParam String name, @RequestParam String password) throws SQLException {
     	try (Connection conn = db.getConnection()) {
-    		conn.prepareStatement("INSERT INTO users (name, password) VALUES ("
-    				+ name + ", " + passwordEncoder.encode(password) + ")").executeUpdate();
+    		conn.prepareStatement("INSERT INTO users (name, password) VALUES ('"
+    				+ name + "', '" + passwordEncoder.encode(password) + "')").executeUpdate();
     	}
     	return "redirect:/";
     }

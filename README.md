@@ -71,3 +71,36 @@ plain text passwords (see above).
 them to pass user data to database in safe way. Alternatively, validate that
 user name and password do not contain any SQL special characters. The former
 option is, of course, much better.
+
+### Broken Authentication
+**Problem:** There is no protection against dictionary or brute force attacks.
+Weak and even *empty* passwords are permitted when registering accounts.
+Changing passwords, should they become compromised, is not possible.
+And as a tip of cake, due to security misconfiguration, passwords are stored
+as plain text.
+
+**Solution:** Implement rate limiting to make brute force attacks less
+effective. Do not permit too short passwords in registration; ideally,
+also validate that given password is not found in e.g. 10k most common leaked
+passwords. Finally, fix the security misconfiguration as detailed above.
+
+### Cross-Site Scripting
+**Problem:** Everyone can set the note that is shown to all users. For
+formatting purposes, HTML has been allowed there. Unfortunately, scripts
+are allowed too. This is an example of stored XSS attack.
+
+**Solution:** Sanitize the user input for any HTML tags, and use a different
+formatting syntax. Use a third-party library to parse e.g. markdown into HTML
+that is shown to all users. Alternatively, disable formatting altogether;
+it is not worth the XSS attack.
+
+### Broken Access Control
+**Problem:** Setting notes in index page is done via HTTP GET. The user can
+be tricked to copy-paste an URL to their browser that will replace current note
+with something else. As long as XSS is a problem, that something else might be
+a malicious script. Even without XSS, something nasty could be "written" as a note.
+
+**Solution:** Never use HTTP GET for anything but *getting* things. HTTP
+standard defines GET (and HEAD, OPTIONS and TRACE) as *safe*, which means
+they are intended only for information retrieval. They should not have any
+side effects.
