@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Create an Account</title>
+    </head>
+
+    <body>
+        <form th:action="@{/register}" method="POST">
+            <label>Username:</label>
+            <input type="text" name="name"><br/>
+
+            <label>Password:</label>
+            <input type="password" name="password"><br/>
+
+            <input type="submit" id="register" value="Register!"/>
+        </form>
+    </body>
+</html>

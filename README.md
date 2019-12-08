@@ -71,4 +71,3 @@ plain text passwords (see above).
 them to pass user data to database in safe way. Alternatively, validate that
 user name and password do not contain any SQL special characters. The former
 option is, of course, much better.
-

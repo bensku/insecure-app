@@ -30,7 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             PreparedStatement query = conn.prepareStatement("CREATE TABLE IF NOT EXISTS users ("
                     + "id SERIAL PRIMARY KEY,"
             		+ "name VARCHAR,"
-            		+ "password VARCHAR,"
+            		+ "password VARCHAR"
                     + ")");
             query.executeUpdate();
 		}
