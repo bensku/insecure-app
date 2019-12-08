@@ -57,6 +57,18 @@ platform-specific features. Provided that you install Java correctly
 ### Security Misconfiguration
 **Problem:** The application has configured use of plain-text password encoder.
 Should attackers get access to it (which is not going to be difficult),
-plaintext passwords of users will be exposed.
+plain text passwords of users will be exposed.
 
 **Solution:** Switch to a secure password encoder, e.g. Bcrypt.
+
+### Injection
+**Problem:** When registering new users, the application concatenates user
+input with SQL queries. This leads to SQL injection, and anyone could execute
+any SQL query in the database. To make matters worse, this database has
+plain text passwords (see above).
+
+**Solution:** Instead of using prepared statements in a brain-dead way, use
+them to pass user data to database in safe way. Alternatively, validate that
+user name and password do not contain any SQL special characters. The former
+option is, of course, much better.
+
