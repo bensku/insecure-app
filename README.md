@@ -55,44 +55,69 @@ platform-specific features. Provided that you install Java correctly
 ## Vulnerabilities demonstrated
 
 ### Security Misconfiguration
-**Problem:** The application has configured use of plain-text password encoder.
-Should attackers get access to it (which is not going to be difficult),
-plain text passwords of users will be exposed.
+**Problem:** The application has configured use of plain-text password encoder,
+even though the class that implements it has been deprecated for security
+reasons. This means that the passwords in the database are stored as plain
+text. Should they be compromised, the attackers will certainly be able to
+log in as any user.
 
-**Solution:** Switch to a secure password encoder, e.g. Bcrypt.
+More importantly, many users recycle passwords even if that is discouraged.
+Plain-text passwords could be used to compromise accounts they have on other
+services that might be otherwise very security.
+
+**Solution:** Use a password encoder from Spring Security that has not been
+deprecated. Most of them are drop-in replacements significantly improve
+security.
 
 ### Injection
 **Problem:** When registering new users, the application concatenates user
-input with SQL queries. This leads to SQL injection, and anyone could execute
-any SQL query in the database. To make matters worse, this database has
-plain text passwords (see above).
+input into an SQL query. This leads to SQL injection that enables anyone to
+execute any SQL code in the application database. The database contents could
+be tampered with, deleted or retrieved by attackers. And to make matters worse,
+the passwords found there are in plain text...
 
-**Solution:** Instead of using prepared statements in a brain-dead way, use
-them to pass user data to database in safe way. Alternatively, validate that
-user name and password do not contain any SQL special characters. The former
-option is, of course, much better.
+**Solution:** Do not concatenate user input into an SQL query. Instead, use
+prepared statements provided by Java's SQL API to safely inject values into
+the queries. Alternatively, validate that user name and password do not contain
+any SQL special characters. The former is generally better idea.
 
 ### Broken Authentication
 **Problem:** There is no protection against dictionary or brute force attacks.
 Weak and even *empty* passwords are permitted when registering accounts.
 Changing passwords, should they become compromised, is not possible.
-And as a tip of cake, due to security misconfiguration, passwords are stored
-as plain text.
+As a tip of the cake, the passwords are stored as plain text due top security
+misconfiguration.
 
 **Solution:** Implement rate limiting to make brute force attacks less
-effective. Do not permit too short passwords in registration; ideally,
-also validate that given password is not found in e.g. 10k most common leaked
-passwords. Finally, fix the security misconfiguration as detailed above.
+effective. Legitimate users will never try to log into their account from one
+IP address more than once a few seconds.
+
+Do not permit too short passwords in registration; ideally,
+also validate that given password has not been leaked by a local copy of
+haveibeenpwned.com database. At the very least, check that the password is
+not in 10k most common passwords.
 
 ### Cross-Site Scripting
-**Problem:** Everyone can set the note that is shown to all users. For
-formatting purposes, HTML has been allowed there. Unfortunately, scripts
-are allowed too. This is an example of stored XSS attack.
+**Problem:** All logged-in users can set contents of a shared note. For
+formatting purposes, HTML has been explicitly allowed there. Unfortunately,
+scripts (and other dangerous parts of HTML) are not stripped or escaped, so
+any user may gain ability to execute scripts on all other users.
 
-**Solution:** Sanitize the user input for any HTML tags, and use a different
-formatting syntax. Use a third-party library to parse e.g. markdown into HTML
-that is shown to all users. Alternatively, disable formatting altogether;
-it is not worth the XSS attack.
+The scripts will be free to modify page content and send requests without
+being impacted by CORS. This could allow conducting fraud against the other
+users, or enable the attackers to control another application on hosted on same
+domain on behalf of users. Mining cryptocurrencies or attempting privilege
+escalation on users could also be possible.
+
+**Solution:** Escape all HTML in user input. If rich text formatting is
+desired, require user to input it in a safe format e.g. Markdown. Render the
+rich text to HTML on server or client that is about to view it. Alternatively,
+use a HTML sanization library to strip all tags that have not been whitelisted.
+Don't try to sanitize HTML yourself; it is a very difficult.
+
+As additional layer of defense, the application could be configured to emit
+HTTP headers that requests browsers not to execute *any* scripts. This would
+prevent future usability improvements with Javascript, which is not ideal.
 
 ### Broken Access Control
 **Problem:** Setting notes in index page is done via HTTP GET. The user can
@@ -100,7 +125,11 @@ be tricked to copy-paste an URL to their browser that will replace current note
 with something else. As long as XSS is a problem, that something else might be
 a malicious script. Even without XSS, something nasty could be "written" as a note.
 
+Besides the obvious issues, this behavior is also contradictory to HTTP
+standard. When standards are not followed, interoperability issues are more
+likely to arise. Some of them might degrade security.
+
 **Solution:** Never use HTTP GET for anything but *getting* things. HTTP
-standard defines GET (and HEAD, OPTIONS and TRACE) as *safe*, which means
+standard defines GET (plus HEAD, OPTIONS and TRACE) as *safe*, which means
 they are intended only for information retrieval. They should not have any
 side effects.
